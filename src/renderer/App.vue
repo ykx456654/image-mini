@@ -4,7 +4,12 @@
       <FormItem class="text-left" label="操作">
         <Button type="primary" @click="upload"><input accept="image/*" v-show="false" ref="input" type="file" @change="change" multiple/>选择图片</Button>
         <Button type="primary" @click="download">压缩</Button>
+        <!-- <Button type="primary" @click="downloadLueSuo">生成略缩图</Button>         -->
       </FormItem>
+      <!-- <FormItem label="略缩图大小">
+        <Input class="lue-size" size="small" v-model="lx" placeholder="宽" />
+        <Input class="lue-size" size="small" v-model="ly" placeholder="高" />        
+      </FormItem> -->
       <FormItem label="压缩比">
          <Slider class="slider" v-model="ratio"/>
       </FormItem>
@@ -35,7 +40,7 @@
 </template>
 
 <script>
-import { Button, Slider, Card, Form, FormItem, LoadingBar } from "iview";
+import { Button, Slider, Card, Form, FormItem, LoadingBar, Input } from "iview";
 import JSZip from "JSZip";
 import FileSaver from 'file-saver';
 import { constants } from 'http2';
@@ -46,7 +51,8 @@ export default {
     Slider,
     Card,
     Form,
-    FormItem
+    FormItem,
+    Input
   },
   data() {
     return {
@@ -55,6 +61,9 @@ export default {
       zip: new JSZip(),
       compressedImage: [],
       compressed: false,
+      lueSuo: false,
+      lx: 0,
+      ly: 0,
     };
   },
   methods: {
@@ -67,6 +76,9 @@ export default {
         this.compressedImage = Array.from({ length: this.files.length }).map(() => ({name:'', size:0, reduceSize:0}));
         this.compressed = false;
       });
+    },
+    downloadLueSuo() {
+      this.lueSuo = true;
     },
     read(file, index) {
       if(!file.type) {
@@ -84,7 +96,12 @@ export default {
           img.onload = () => {
             canvas.width = img.width;
             canvas.height = img.height;
+            // if(this.lueSuo) {
+            //   // context.drawImage(img, 0, 0, img.width, img.height, ratio);
+            // } else {
+            // }
             context.drawImage(img, 0, 0, img.width, img.height);
+            console.log(ratio)
             canvas.toBlob(
               blob => {
                 const reduceSize = ((file.size - blob.size) / 1024).toFixed(2);
@@ -113,11 +130,14 @@ export default {
           zipfolder.file(img.name, img.blob);
           this.compressedImage.splice(index, 1, { name: img.name, size: img.size, reduceSize: img.reduceSize });
           LoadingBar.finish();
-          this.compressed = true;
+          
         })
         zipfolder.generateAsync({type:"blob"})
         .then(content => {
+            this.compressed = true;
             FileSaver.saveAs(content, "example.zip");
+            this.files = {};
+            this.lueSuo = false;
         });
       });
     }
@@ -152,7 +172,6 @@ export default {
 }
 canvas {
   width: 300px;
-  height: 200px;
   margin: 5px;
 }
 .file-list {
@@ -169,5 +188,10 @@ canvas {
 }
 .reduceSize {
   color: #ed3f14;
+}
+.lue-size {
+  display: inline-block;
+  width: 20%;
+  margin-right: 5px;
 }
 </style>
