@@ -13,7 +13,7 @@
           <li v-for="(f, index) in files" :key="index">
             <span class="name">{{ f.name }}</span>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <span class="size">{{ f.size }}k</span>
+            <span class="size">{{ f.size / 1024 }}k</span>
           </li>
         </ul>
       </FormItem>
