@@ -1,5 +1,7 @@
 # image-mini
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/ykx456654/image-mini.svg)](https://greenkeeper.io/)
+
 > 图片压缩工具
 
 #### Build Setup
